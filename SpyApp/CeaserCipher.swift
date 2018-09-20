@@ -1,15 +1,18 @@
 import Foundation
 
 protocol Cipher {
-    func encode(_ plaintext: String, secret: String) -> String
-    func decode(_ ciphertext: String, secret: String) -> String
+    func encode(_ plaintext: String, secret: String) -> String?
+    func decode(_ ciphertext: String, secret: String) -> String?
 }
 
 // AlphaNumericCesarCipher
 struct AlphaNumericCesarCipher: Cipher {
-    func encode(_ plaintext: String, secret: String) -> String {
+    
+    func encode(_ plaintext: String, secret: String) -> String? {
+        guard let shiftBy = UInt32(secret) else {
+            return nil
+        }
         var encoded = ""
-        var shiftBy = UInt32(secret)!
         
         for character in plaintext {
             let unicode = character.unicodeScalars.first!.value
@@ -20,9 +23,11 @@ struct AlphaNumericCesarCipher: Cipher {
         return encoded
     }
     
-    func decode(_ ciphertext:String, secret: String) -> String {
+    func decode(_ ciphertext:String, secret: String) -> String? {
         var decoded = ""
-        var unshiftBy = UInt32(secret)!
+        guard let unshiftBy = UInt32(secret) else {
+            return nil
+        }
         
         for character in ciphertext {
             let unicode = character.unicodeScalars.first!.value
@@ -39,9 +44,11 @@ struct AlphaNumericCesarCipher: Cipher {
 //CeasarCipher
 struct CeaserCipher: Cipher {
 
-    func encode(_ plaintext: String, secret: String) -> String {
+    func encode(_ plaintext: String, secret: String) -> String? {
         var encoded = ""
-        let shiftBy = UInt32(secret)!
+        guard let shiftBy = UInt32(secret) else {
+            return nil
+        }
 
         for character in plaintext {
             let unicode = character.unicodeScalars.first!.value
@@ -52,9 +59,11 @@ struct CeaserCipher: Cipher {
         return encoded
     }
     
-    func decode(_ ciphertext:String, secret: String) -> String {
+    func decode(_ ciphertext:String, secret: String) -> String? {
         var decoded = ""
-        let unshiftBy = UInt32(secret)!
+        guard let unshiftBy = UInt32(secret) else {
+            return nil
+        }
         
         for character in ciphertext {
             let unicode = character.unicodeScalars.first!.value
