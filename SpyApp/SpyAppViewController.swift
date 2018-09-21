@@ -1,6 +1,6 @@
 import UIKit
 
-class SpyAppViewController: UIViewController {
+class SpyAppViewController: UIViewController, UITextFieldDelegate {
 
     @IBOutlet weak var input: UITextField!
     @IBOutlet weak var secret: UITextField!
@@ -13,18 +13,25 @@ class SpyAppViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad();
+        self.secret.delegate = self;
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         
-        let ciphermethod = ["ceasar","alphanumceasar"]
- 
-        let cipher_key = ciphermethod[CipherControl.selectedSegmentIndex]
-
-        //let cipher_key = "cesar"
-        cipher = factory.cipher(for: cipher_key)
+        let allowedCharacters = CharacterSet.decimalDigits
+        let characterSet = CharacterSet(charactersIn: string)
+        return allowedCharacters.isSuperset(of: characterSet)
     }
     
     var plaintext: String {
         if let text = input.text {
-            return text
+            if(CipherControl.selectedSegmentIndex == 1) {
+                print(text)
+                return text.uppercased();
+            } else {
+                return text
+            }
+            
         } else {
             return ""
         }
@@ -32,13 +39,37 @@ class SpyAppViewController: UIViewController {
     
     var secretText: String {
         if let text = secret.text {
+        
             return text
         } else {
             return ""
         }
     }
+    @IBAction func encodeButtonPressed(_ sender: UIButton) {
+        
+        let ciphermethod = ["ceasar","alphanumceasar","cypher13","supercypher"]
+        var cipher_key = ciphermethod[CipherControl.selectedSegmentIndex]
+        cipher = factory.cipher(for: cipher_key)
+        
+        guard let cipher = self.cipher else {
+            output.text = "No cipher selected"
+            return
+        }
+        if let encoded = cipher.encode(plaintext, secret: secretText) {
+            output.text = encoded
+        } else {
+            output.text = "Error encoding"
+        }
+     
+    }
+    
     
     @IBAction func decodeButtonPressed(_ sender: UIButton) {
+        
+        let ciphermethod = ["ceasar","alphanumceasar","cypher13","supercypher"]
+        var cipher_key = ciphermethod[CipherControl.selectedSegmentIndex]
+        cipher = factory.cipher(for: cipher_key)
+        
         guard let cipher = self.cipher else {
             output.text = "No cipher selected"
             return
@@ -51,41 +82,9 @@ class SpyAppViewController: UIViewController {
         
     }
     
-    @IBAction func encodeButtonPressed(_ sender: UIButton) {
-        guard let cipher = self.cipher else {
-            output.text = "No cipher selected"
-            return
-        }
-        if let encoded = cipher.encode(plaintext, secret: secretText) {
-            output.text = encoded
-        } else {
-            output.text = "Error encoding"
-        }
-        /*
-        let plaintext = input.text!
-        let secret = self.secret.text!
-        output.text = cipher.encode(plaintext, secret: secret)
- */
-    }
 
-    
-    // We will talk about this method during lecture
-    @IBAction func cipherButtonPressed(_ sender: UIButton) {
-        /*
-        let key = sender.titleLabel!.text!
-        cipher = factory.cipher(for: key)
-        */
-        
-         guard
-         let buttonLable = sender.titleLabel,
-         let buttonText = buttonLable.text
-         else {
-         output.text = "No button or no button text"
-         return
-         }
-         cipher = factory.cipher(for: buttonText)
- 
-    }
+
+
 
 }
 
